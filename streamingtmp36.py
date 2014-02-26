@@ -146,7 +146,15 @@ print(b.WARN+"Graph URL:       "+response[u'url'])
 print("Graph Title:     "+response[u'filename']+'\n'+b.END)
 print(b.GREEN+"========================================================\n"+b.END)
 
+def movingAverage(newx, xarray, winlength):
+    xarray.append(newx)
+    if len(xarray) > winlength:
+        xarray.pop(0)
+    return sum(xarray) / len(xarray)
+
 def streamdata():
+    TEMP_ARRAY = []
+    WIN_LENGTH = 10 # Set to 1 to remove averaging or another value to optimize smoothing for use case
     while True:
         # read the analog pin (temperature sensor LM36)
         read_adc0 = readadc(adcnum, SPICLK, SPIMOSI, SPIMISO, SPICS)
@@ -163,14 +171,16 @@ def streamdata():
         # remove decimal point from millivolts
         millivolts = "%d" % millivolts
 
-        # show only one decimal place for temprature and voltage readings
-        temp_C = "%.1f" % temp_C
-        temp_F = "%.1f" % temp_F
-
         if TEMP_TYPE == 'c':
-            TEMP_READING = temp_C
+            TEMP = temp_C
         elif TEMP_TYPE == 'f':
-            TEMP_READING = temp_F
+            TEMP = temp_F
+
+        # Take moving average to apply smoothing
+        AVG_T = movingAverage(TEMP, TEMP_ARRAY, WIN_LENGTH)
+
+        # show only one decimal place for temperature
+        TEMP_READING = "%.1f" % AVG_T
 
         date_stamp = datetime.datetime.now()
         data = {
@@ -185,6 +195,8 @@ def streamdata():
         sys.stdout.write('Temperature Reading:  '+ TEMP_READING)
         sys.stdout.flush()
         sys.stdout.write("\b" * 30)
+
+
 
 requests.post('http://stream.plot.ly',
     data=streamdata(),
