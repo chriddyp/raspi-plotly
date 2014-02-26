@@ -174,7 +174,7 @@ def streamdata():
 
         date_stamp = datetime.datetime.now()
         data = {
-        'x': date_stamp.strftime('%Y-%m-%d %H:%M:%S'),
+        'x': date_stamp.strftime('%Y-%m-%d %H:%M:%S.%f'),
         'y': TEMP_READING,
         }
         yield json.dumps(data)+'\n'
