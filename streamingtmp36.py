@@ -188,14 +188,10 @@ def streamdata():
         'y': TEMP_READING,
         }
         yield json.dumps(data)+'\n'
-        time.sleep(DELAY)
-        sys.stdout.write('STREAMING TO PLOTLY')
-        sys.stdout.flush()
-        sys.stdout.write("\b" * 30)
         sys.stdout.write('Temperature Reading:  '+ TEMP_READING)
         sys.stdout.flush()
         sys.stdout.write("\b" * 30)
-
+        time.sleep(DELAY)
 
 
 requests.post('http://stream.plot.ly',
